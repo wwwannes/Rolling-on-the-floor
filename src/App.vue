@@ -1,8 +1,8 @@
 <template>
    <div class="container">
       <div id="app">
-         <h1 id="quote-text">{{setup}}</h1>
-         <h2 id="quote-person">{{punchline}}</h2>
+         <h1 id="quote-setup">{{setup}}</h1>
+         <h1 id="quote-punchline">{{punchline}}</h1>
          <button @click="tellJoke">{{buttonText}}</button>
       </div>
    </div>
@@ -16,44 +16,54 @@
       return {
         SYNTHESIS: window.speechSynthesis,
         VOICES: null,
+        quoteUtterance: "",
+        personUtterance: "",
         setup: '',
         punchline: '',
         voice: '',
         buttonText: "Tell me a joke"
       }
     },
-    created: function(){
+    mounted: function(){
       // GET THE FEMALE UK VOICE
       this.VOICES = this.SYNTHESIS.getVoices()
               .map(function (voice) {
+                $("button").fadeIn("slow");
                 return { voice: voice, name: voice.name, lang: voice.lang.toUpperCase() }
               });
 
       this.voice = this.VOICES[71];
     },
-    watch:{
-      setup: function(){
-        // SPEAK
-        let quoteUtterance = new SpeechSynthesisUtterance(this.setup);
-        let personUtterance = new SpeechSynthesisUtterance(this.punchline);
-
-        quoteUtterance.voice = this.voice.voice;
-        personUtterance.voice = this.voice.voice;
-        quoteUtterance.rate = personUtterance.rate = 0.85;
-        //quoteUtterance.pitch = personUtterance.pitch = 1.1;
-
-        this.SYNTHESIS.speak(quoteUtterance);
-        this.SYNTHESIS.speak(personUtterance);
-
-        this.buttonText = "Tell me another joke";
-      }
-    },
     methods:{
        tellJoke: function(){
+
+         $("#quote-setup, #quote-punchline, button").fadeOut(function(){
+           this.setup = "";
+           this.punchline = "";
+         });
+
          axios.get("http://localhost:3000/getJoke")
          .then((response => (
             this.setup = response.data.setup,
-            this.punchline = response.data.punchline
+            this.punchline = response.data.punchline,
+            this.quoteUtterance = new SpeechSynthesisUtterance(this.setup),
+            this.personUtterance = new SpeechSynthesisUtterance(this.punchline),
+            this.quoteUtterance.voice = this.voice.voice,
+            this.personUtterance.voice = this.voice.voice,
+            this.quoteUtterance.rate = this.personUtterance.rate = 0.85,
+            //quoteUtterance.pitch = personUtterance.pitch = 1.1,
+            this.SYNTHESIS.speak(this.quoteUtterance),
+            this.SYNTHESIS.speak(this.personUtterance),
+            this.buttonText = "Tell me another joke",
+            this.quoteUtterance.onstart = function(){
+              $("#quote-setup").fadeIn(750);
+            },
+            this.personUtterance.onstart = function(){
+              $("#quote-punchline").fadeIn(750);
+            },
+            this.personUtterance.onend = function(){
+              $("button").fadeIn(1000);
+            }
            )
          ));
        }
@@ -61,8 +71,19 @@
    }
 </script>
 <style lang="scss">
-  .container{
 
+  *{
+    margin: 0;
+    padding: 0;
+  }
+
+  body{
+    background: yellow;
+    color: black;
+    font-family: "Helvetica", sans-serif;
+  }
+
+  .container{
     position: relative;
     width: 100vw;
     height: 100vh;
@@ -75,6 +96,35 @@
       top:50%;
       left: 50%;
       transform: translate(-50%, -50%);
+
+      #quote-setup,
+      #quote-punchline{
+        text-transform: uppercase;
+        margin: 0;
+        font-weight: bold;
+        display: none;
+      }
+
+      #quote-punchline{
+        margin: 7px;
+      }
+
+      button{
+        background: black;
+        color: white;
+        border-radius: 0;
+        border: 1px solid black;
+        padding: 7px 10px;
+        margin-top: 25px;
+        text-transform: uppercase;
+        display: none;
+
+        &:hover{
+          background: yellow;
+          color: black;
+          cursor: pointer;
+        }
+      }
     }
   }
 </style>
