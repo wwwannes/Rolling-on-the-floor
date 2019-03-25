@@ -24,16 +24,6 @@
         buttonText: "Tell me a joke"
       }
     },
-    mounted: function(){
-      // GET THE FEMALE UK VOICE
-      this.VOICES = this.SYNTHESIS.getVoices()
-              .map(function (voice) {
-                $("button").fadeIn("slow");
-                return { voice: voice, name: voice.name, lang: voice.lang.toUpperCase() }
-              });
-
-      this.voice = this.VOICES[71];
-    },
     methods:{
        tellJoke: function(){
 
@@ -41,6 +31,14 @@
            this.setup = "";
            this.punchline = "";
          });
+
+         // GET THE FEMALE UK VOICE
+         this.VOICES = this.SYNTHESIS.getVoices()
+              .map(function (voice) {
+                 $("button").fadeIn("slow");
+                 return { voice: voice, name: voice.name, lang: voice.lang.toUpperCase() }
+          });
+         this.voice = this.VOICES[71];
 
          axios.get("http://localhost:3000/getJoke")
          .then((response => (
@@ -117,7 +115,6 @@
         padding: 7px 10px;
         margin-top: 25px;
         text-transform: uppercase;
-        display: none;
 
         &:hover{
           background: yellow;
