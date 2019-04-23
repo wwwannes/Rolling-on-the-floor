@@ -2,7 +2,7 @@
 
 > If it doesn't make you laugh, you are a robot.
 
-$ [Live demo] (https://wannesverelst.me/rolling-on-the-floor/)
+* [Live demo] (https://wannesverelst.me/rolling-on-the-floor/)
 
 ## Build Setup
 
